@@ -1,0 +1,378 @@
+/* ============================================
+   HUD Overlay - Heads-Up Display for Shuttle Telemetry
+   Layered on top of the Three.js canvas
+   ============================================ */
+
+#hud-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* --- Top Bar --- */
+#hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  pointer-events: auto;
+}
+
+#hud-top .hud-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#mission-name .hud-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--primary);
+  text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
+/* --- Side Panels --- */
+#hud-left {
+  position: absolute;
+  top: 60px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 240px;
+}
+
+#hud-right {
+  position: absolute;
+  top: 60px;
+  right: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 220px;
+}
+
+/* --- HUD Panel --- */
+.hud-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(0, 212, 255, 0.02);
+  pointer-events: auto;
+}
+
+.hud-panel h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* --- HUD Labels and Values --- */
+.hud-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.hud-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--primary);
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.15rem 0;
+}
+
+.hud-row .hud-value {
+  text-align: right;
+}
+
+/* --- Fuel Bar --- */
+.fuel-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  margin: 0.3rem 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fuel-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), #00d4ff);
+  border-radius: 3px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.fuel-fill.low {
+  background: linear-gradient(90deg, var(--danger), var(--warning));
+}
+
+.fuel-fill.medium {
+  background: linear-gradient(90deg, var(--warning), #aaff00);
+}
+
+/* --- Throttle Bar --- */
+.throttle-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 0 0.5rem;
+}
+
+.throttle-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+
+/* --- Bottom Bar --- */
+#hud-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  pointer-events: auto;
+}
+
+/* --- Throttle Display --- */
+#throttle-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+#throttle-display .hud-label {
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+#throttle-display .hud-value {
+  font-size: 0.75rem;
+  min-width: 3ch;
+  text-align: right;
+}
+
+/* --- Navigation Mode Buttons --- */
+#nav-modes {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+}
+
+.nav-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
+
+.nav-btn.active {
+  color: var(--bg-dark);
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+}
+
+/* --- Action Buttons --- */
+#action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  padding: 0.4rem 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+}
+
+.action-btn:hover {
+  border-color: var(--secondary);
+  color: var(--secondary);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+.action-btn.active {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+#btn-stage {
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+#btn-stage:hover {
+  background: rgba(255, 107, 53, 0.2);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+}
+
+#btn-rcs,
+#btn-sas {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#btn-rcs:hover,
+#btn-sas:hover {
+  background: rgba(123, 47, 247, 0.2);
+  box-shadow: 0 0 10px rgba(123, 47, 247, 0.4);
+}
+
+#btn-rcs.active,
+#btn-sas.active {
+  background: rgba(123, 47, 247, 0.3);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* --- Attitude Indicator --- */
+#attitude-indicator {
+  display: block;
+  margin: 0.3rem auto;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: #000;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1200px) {
+  #hud-right {
+    right: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  #hud-left,
+  #hud-right {
+    position: static;
+    max-width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+  }
+
+  #hud-left {
+    position: absolute;
+    top: 50px;
+    left: 0;
+  }
+
+  #hud-right {
+    position: absolute;
+    top: 50px;
+    right: 0;
+  }
+
+  .hud-panel {
+    min-width: 140px;
+    flex: 1;
+  }
+
+  #hud-bottom {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #hud-top {
+    padding: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .hud-panel {
+    padding: 0.5rem;
+  }
+
+  .hud-panel h3 {
+    font-size: 0.55rem;
+  }
+
+  .hud-value {
+    font-size: 0.7rem;
+  }
+
+  .hud-label {
+    font-size: 0.6rem;
+  }
+
+  .nav-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.5rem;
+  }
+
+  #hud-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #throttle-display {
+    min-width: auto;
+  }
+}

@@ -157,6 +157,7 @@
       this.starfield = new THREE.Points(geometry, material);
       this.scene.add(this.starfield);
       this.starfieldTime = 0;
+      this.starBaseSizes = new Float32Array(sizes);
     }
 
     createEarth() {
@@ -295,6 +296,24 @@
         })
       );
       this.shuttleGroup.add(this.heatingGlow);
+
+      // Docking target spacecraft
+      this.targetMesh = new THREE.Group();
+      const tBody = new THREE.Mesh(
+        new THREE.BoxGeometry(s * 0.3, s * 0.3, s * 0.6),
+        new THREE.MeshPhongMaterial({ color: 0xcccccc })
+      );
+      this.targetMesh.add(tBody);
+      const panelGeom = new THREE.BoxGeometry(s * 1.2, s * 0.02, s * 0.3);
+      const panelMat = new THREE.MeshPhongMaterial({ color: 0x2244aa, emissive: 0x111144 });
+      const panelL = new THREE.Mesh(panelGeom, panelMat);
+      panelL.position.set(0, s * 0.15, 0);
+      this.targetMesh.add(panelL);
+      const panelR = new THREE.Mesh(panelGeom, panelMat);
+      panelR.position.set(0, -s * 0.15, 0);
+      this.targetMesh.add(panelR);
+      this.targetMesh.visible = false;
+      this.scene.add(this.targetMesh);
     }
 
     createExhaustParticles() {
@@ -347,7 +366,6 @@
     createOrbitLine() {
       const geometry = new THREE.BufferGeometry();
       const positions = new Float32Array(3);
-      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
       const material = new THREE.LineBasicMaterial({
@@ -429,7 +447,7 @@
         this.camera.lookAt(this.cameraTarget);
       } else if (this.viewMode === 'orbit') {
         this.orbitTarget.set(0, 0, 0);
-        const dist = this.cameraDistance * scale;
+        const dist = Math.max(this.cameraDistance, 15000) * scale;
         const camX = this.orbitTarget.x + dist * Math.sin(this.cameraAngle.theta) * Math.cos(this.cameraAngle.phi);
         const camY = this.orbitTarget.y + dist * Math.cos(this.cameraAngle.theta) * Math.cos(this.cameraAngle.phi);
         const camZ = this.orbitTarget.z + dist * Math.sin(this.cameraAngle.phi);
@@ -454,8 +472,8 @@
 
       // Show/hide stack components based on staging
       const stage = shuttle.currentStage || 0;
-      this.stackGroup.visible = stage === 0;
-      this.externalTank.visible = stage <= 1;
+      this.stackGroup.visible = stage < 2;
+      this.externalTank.visible = stage < 2;
       this.srbLeft.visible = stage === 0;
       this.srbRight.visible = stage === 0;
 
@@ -472,10 +490,9 @@
       // Star twinkle
       this.starfieldTime = (this.starfieldTime || 0) + 0.016;
       const sizes = this.starfield.geometry.attributes.size;
-      if (sizes) {
+      if (sizes && this.starBaseSizes) {
         for (let i = 0; i < sizes.count; i++) {
-          const base = sizes.array[i];
-          sizes.array[i] = base * (0.8 + 0.4 * Math.sin(this.starfieldTime * 2 + i * 0.1));
+          sizes.array[i] = this.starBaseSizes[i] * (0.8 + 0.4 * Math.sin(this.starfieldTime * 2 + i * 0.1));
         }
         sizes.needsUpdate = true;
       }
