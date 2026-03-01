@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shuttle Simulator</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/hud.css">
+    <link rel="stylesheet" href="css/controls.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div class="loader-ring"></div>
+            <h1>SPACE SHUTTLE SIMULATOR</h1>
+            <p class="loader-status">Initializing systems...</p>
+        </div>
+    </div>
+
+    <canvas id="sim-canvas"></canvas>
+
+    <div id="hud-overlay">
+        <div id="hud-top">
+            <div class="hud-group" id="mission-timer">
+                <span class="hud-label">MET</span>
+                <span class="hud-value" id="met-value">00:00:00</span>
+            </div>
+            <div class="hud-group" id="mission-name">
+                <span class="hud-value" id="mission-label">FREE FLIGHT</span>
+            </div>
+            <div class="hud-group" id="time-warp">
+                <span class="hud-label">TIME WARP</span>
+                <span class="hud-value" id="warp-value">1x</span>
+            </div>
+        </div>
+
+        <div id="hud-left">
+            <div class="hud-panel" id="orbital-info">
+                <h3>ORBITAL DATA</h3>
+                <div class="hud-row"><span class="hud-label">Altitude</span><span class="hud-value" id="altitude-value">0 km</span></div>
+                <div class="hud-row"><span class="hud-label">Velocity</span><span class="hud-value" id="velocity-value">0 m/s</span></div>
+                <div class="hud-row"><span class="hud-label">Apoapsis</span><span class="hud-value" id="apoapsis-value">0 km</span></div>
+                <div class="hud-row"><span class="hud-label">Periapsis</span><span class="hud-value" id="periapsis-value">0 km</span></div>
+                <div class="hud-row"><span class="hud-label">Inclination</span><span class="hud-value" id="inclination-value">0°</span></div>
+                <div class="hud-row"><span class="hud-label">Eccentricity</span><span class="hud-value" id="eccentricity-value">0.000</span></div>
+            </div>
+            <div class="hud-panel" id="shuttle-info">
+                <h3>SHUTTLE STATUS</h3>
+                <div class="hud-row"><span class="hud-label">Mass</span><span class="hud-value" id="mass-value">0 kg</span></div>
+                <div class="hud-row"><span class="hud-label">Fuel</span><span class="hud-value" id="fuel-value">100%</span></div>
+                <div class="fuel-bar"><div class="fuel-fill" id="fuel-fill"></div></div>
+                <div class="hud-row"><span class="hud-label">Thrust</span><span class="hud-value" id="thrust-value">0 kN</span></div>
+                <div class="hud-row"><span class="hud-label">G-Force</span><span class="hud-value" id="gforce-value">0.0 g</span></div>
+            </div>
+        </div>
+
+        <div id="hud-right">
+            <div class="hud-panel" id="attitude-panel">
+                <h3>ATTITUDE</h3>
+                <canvas id="attitude-indicator" width="160" height="160"></canvas>
+                <div class="hud-row"><span class="hud-label">Pitch</span><span class="hud-value" id="pitch-value">0°</span></div>
+                <div class="hud-row"><span class="hud-label">Yaw</span><span class="hud-value" id="yaw-value">0°</span></div>
+                <div class="hud-row"><span class="hud-label">Roll</span><span class="hud-value" id="roll-value">0°</span></div>
+            </div>
+            <div class="hud-panel" id="environment-panel">
+                <h3>ENVIRONMENT</h3>
+                <div class="hud-row"><span class="hud-label">Atm. Density</span><span class="hud-value" id="atm-density-value">0 kg/m³</span></div>
+                <div class="hud-row"><span class="hud-label">Temperature</span><span class="hud-value" id="temp-value">0 K</span></div>
+                <div class="hud-row"><span class="hud-label">Drag Force</span><span class="hud-value" id="drag-value">0 N</span></div>
+                <div class="hud-row"><span class="hud-label">Heat Flux</span><span class="hud-value" id="heat-value">0 W/m²</span></div>
+            </div>
+        </div>
+
+        <div id="hud-bottom">
+            <div id="throttle-display">
+                <span class="hud-label">THROTTLE</span>
+                <div class="throttle-bar"><div class="throttle-fill" id="throttle-fill"></div></div>
+                <span class="hud-value" id="throttle-pct">0%</span>
+            </div>
+            <div id="nav-modes">
+                <button class="nav-btn active" data-mode="prograde" title="Prograde">PGD</button>
+                <button class="nav-btn" data-mode="retrograde" title="Retrograde">RGD</button>
+                <button class="nav-btn" data-mode="normal" title="Normal">NRM</button>
+                <button class="nav-btn" data-mode="antinormal" title="Anti-Normal">ANM</button>
+                <button class="nav-btn" data-mode="radialin" title="Radial In">RIN</button>
+                <button class="nav-btn" data-mode="radialout" title="Radial Out">ROT</button>
+            </div>
+            <div id="action-buttons">
+                <button class="action-btn" id="btn-stage" title="Stage separation">STAGE</button>
+                <button class="action-btn" id="btn-rcs" title="Toggle RCS">RCS</button>
+                <button class="action-btn" id="btn-sas" title="Toggle SAS">SAS</button>
+                <button class="action-btn" id="btn-gear" title="Toggle landing gear">GEAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-panel">
+        <div class="controls-header">
+            <h2>MISSION CONTROL</h2>
+            <button id="toggle-controls" title="Toggle panel">◀</button>
+        </div>
+        <div class="controls-body">
+            <div class="control-section">
+                <h3>Scenarios</h3>
+                <div class="scenario-grid">
+                    <button class="scenario-btn" data-scenario="launch">
+                        <span class="scenario-icon">🚀</span>
+                        <span>Launch</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="orbit">
+                        <span class="scenario-icon">🌍</span>
+                        <span>Orbit</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="reentry">
+                        <span class="scenario-icon">☄️</span>
+                        <span>Re-entry</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="moon">
+                        <span class="scenario-icon">🌙</span>
+                        <span>Moon Transfer</span>
+                    </button>
+                    <button class="scenario-btn active" data-scenario="freeplay">
+                        <span class="scenario-icon">🛸</span>
+                        <span>Free Play</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="docking">
+                        <span class="scenario-icon">🔗</span>
+                        <span>Docking</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Shuttle Parameters</h3>
+                <div class="param-group">
+                    <label>Dry Mass (kg)</label>
+                    <input type="range" id="param-drymass" min="10000" max="120000" value="68585" step="1000">
+                    <span class="param-val" id="val-drymass">68,585</span>
+                </div>
+                <div class="param-group">
+                    <label>Fuel Mass (kg)</label>
+                    <input type="range" id="param-fuelmass" min="5000" max="750000" value="720000" step="5000">
+                    <span class="param-val" id="val-fuelmass">720,000</span>
+                </div>
+                <div class="param-group">
+                    <label>Engine Thrust (kN)</label>
+                    <input type="range" id="param-thrust" min="500" max="40000" value="12500" step="500">
+                    <span class="param-val" id="val-thrust">12,500</span>
+                </div>
+                <div class="param-group">
+                    <label>Specific Impulse (s)</label>
+                    <input type="range" id="param-isp" min="200" max="500" value="366" step="1">
+                    <span class="param-val" id="val-isp">366</span>
+                </div>
+                <div class="param-group">
+                    <label>Drag Coefficient</label>
+                    <input type="range" id="param-cd" min="0.1" max="3.0" value="0.8" step="0.1">
+                    <span class="param-val" id="val-cd">0.80</span>
+                </div>
+                <div class="param-group">
+                    <label>Cross Section (m²)</label>
+                    <input type="range" id="param-area" min="10" max="500" value="180" step="5">
+                    <span class="param-val" id="val-area">180</span>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Initial Conditions</h3>
+                <div class="param-group">
+                    <label>Altitude (km)</label>
+                    <input type="range" id="param-altitude" min="0" max="2000" value="250" step="10">
+                    <span class="param-val" id="val-altitude">250</span>
+                </div>
+                <div class="param-group">
+                    <label>Velocity (m/s)</label>
+                    <input type="range" id="param-velocity" min="0" max="12000" value="7800" step="100">
+                    <span class="param-val" id="val-velocity">7,800</span>
+                </div>
+                <div class="param-group">
+                    <label>Inclination (°)</label>
+                    <input type="range" id="param-inclination" min="0" max="90" value="28.5" step="0.5">
+                    <span class="param-val" id="val-inclination">28.5</span>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Simulation</h3>
+                <div class="param-group">
+                    <label>Time Warp</label>
+                    <select id="param-timewarp">
+                        <option value="0.1">0.1x (Slow-mo)</option>
+                        <option value="1" selected>1x (Real-time)</option>
+                        <option value="10">10x</option>
+                        <option value="100">100x</option>
+                        <option value="1000">1,000x</option>
+                        <option value="10000">10,000x</option>
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="ctrl-btn" id="btn-pause">⏸ Pause</button>
+                    <button class="ctrl-btn" id="btn-reset">↻ Reset</button>
+                </div>
+                <div class="btn-row">
+                    <button class="ctrl-btn secondary" id="btn-orbit-view">Orbit View</button>
+                    <button class="ctrl-btn secondary" id="btn-chase-view">Chase View</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Keyboard Controls</h3>
+                <div class="keybinds">
+                    <div class="key-row"><kbd>W</kbd><kbd>S</kbd> Pitch</div>
+                    <div class="key-row"><kbd>A</kbd><kbd>D</kbd> Yaw</div>
+                    <div class="key-row"><kbd>Q</kbd><kbd>E</kbd> Roll</div>
+                    <div class="key-row"><kbd>Shift</kbd> Throttle Up</div>
+                    <div class="key-row"><kbd>Ctrl</kbd> Throttle Down</div>
+                    <div class="key-row"><kbd>X</kbd> Kill Throttle</div>
+                    <div class="key-row"><kbd>Z</kbd> Full Throttle</div>
+                    <div class="key-row"><kbd>Space</kbd> Stage</div>
+                    <div class="key-row"><kbd>T</kbd> Toggle SAS</div>
+                    <div class="key-row"><kbd>R</kbd> Toggle RCS</div>
+                    <div class="key-row"><kbd>,</kbd><kbd>.</kbd> Time Warp</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/shuttle.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/scenarios.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

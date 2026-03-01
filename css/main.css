@@ -1,0 +1,224 @@
+/* ============================================
+   Space Shuttle Physics Simulator - Main Stylesheet
+   Production-quality dark space theme
+   ============================================ */
+
+/* --- CSS Reset --- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* --- CSS Variables --- */
+:root {
+  --primary: #00d4ff;
+  --secondary: #ff6b35;
+  --accent: #7b2ff7;
+  --success: #00ff88;
+  --warning: #ffaa00;
+  --danger: #ff3366;
+  --bg-dark: #0a0e17;
+  --bg-panel: rgba(10, 14, 23, 0.85);
+  --text: #e0e6f0;
+  --text-dim: #6b7b9e;
+  --border: rgba(0, 212, 255, 0.2);
+}
+
+/* --- Base Styles --- */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text);
+  font-family: 'Share Tech Mono', 'Consolas', 'Monaco', monospace;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* --- Canvas --- */
+#sim-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: block;
+  z-index: 0;
+}
+
+/* --- Loading Screen --- */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  z-index: 1000;
+  transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Loader Content Container */
+#loading-screen .loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Spinner Ring Animation */
+#loading-screen .loader-ring {
+  width: 80px;
+  height: 80px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin-ring 1s linear infinite;
+  margin-bottom: 2rem;
+}
+
+@keyframes spin-ring {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#loading-screen h1,
+#loading-screen h2,
+#loading-screen p {
+  font-family: 'Orbitron', 'Share Tech Mono', sans-serif;
+  text-align: center;
+  color: var(--text);
+  margin: 0.25rem 0;
+}
+
+#loading-screen h1,
+#loading-screen h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--primary);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+#loading-screen p,
+#loading-screen .loader-status {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* --- Notification Area --- */
+#notification-area {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+/* Toast Notifications */
+#notification-area .toast,
+#notification-area [class*="notification"] {
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--text);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  animation: toast-slide-in 0.4s ease-out;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+
+#notification-area .toast.success,
+#notification-area .toast[data-type="success"] {
+  border-left-color: var(--success);
+}
+
+#notification-area .toast.warning,
+#notification-area .toast[data-type="warning"] {
+  border-left-color: var(--warning);
+}
+
+#notification-area .toast.error,
+#notification-area .toast.danger,
+#notification-area .toast[data-type="error"] {
+  border-left-color: var(--danger);
+}
+
+#notification-area .toast.info,
+#notification-area .toast[data-type="info"] {
+  border-left-color: var(--primary);
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Scrollbar Styling (WebKit) --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-dim);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* --- Smooth Transitions (Global) --- */
+a,
+button,
+input,
+select,
+textarea {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
