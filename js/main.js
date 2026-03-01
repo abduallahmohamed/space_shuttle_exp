@@ -47,6 +47,9 @@
 
         currentScenario = name;
         targetInfo = scenario.setup(shuttle) || null;
+        shuttle.altitude = SpacePhysics.Vec3.magnitude(shuttle.position) - SpacePhysics.Constants.EARTH_RADIUS;
+        shuttle.speed = SpacePhysics.Vec3.magnitude(shuttle.velocity);
+        shuttle.orbitalElements = SpacePhysics.OrbitalMechanics.getOrbitalElements(shuttle.position, shuttle.velocity);
         hud.setMissionName(scenario.name);
 
         if (renderer.targetMesh) {

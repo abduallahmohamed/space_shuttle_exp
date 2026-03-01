@@ -136,21 +136,14 @@
 
       const inclination = Math.acos(Math.max(-1, Math.min(1, hVec.z / h)));
 
-      if (specificEnergy >= 0) {
-        semiMajorAxis = -MU / (2 * specificEnergy);
-        eccentricity = Math.sqrt(1 + (2 * specificEnergy * h * h) / (MU * MU));
-        if (eccentricity >= 1) {
-          apoapsisAlt = Infinity;
-          periapsisAlt = semiMajorAxis * (1 - eccentricity) - R_EARTH;
-        } else {
-          const rApo = semiMajorAxis * (1 + eccentricity);
-          const rPeri = semiMajorAxis * (1 - eccentricity);
-          apoapsisAlt = rApo - R_EARTH;
-          periapsisAlt = rPeri - R_EARTH;
-        }
+      semiMajorAxis = -MU / (2 * specificEnergy);
+      const eSquared = Math.max(0, 1 + (2 * specificEnergy * h * h) / (MU * MU));
+      eccentricity = Math.sqrt(eSquared);
+
+      if (eccentricity >= 1) {
+        apoapsisAlt = Infinity;
+        periapsisAlt = Math.abs(semiMajorAxis) * (1 - eccentricity) - R_EARTH;
       } else {
-        semiMajorAxis = -MU / (2 * specificEnergy);
-        eccentricity = Math.sqrt(1 + (2 * specificEnergy * h * h) / (MU * MU));
         const rApo = semiMajorAxis * (1 + eccentricity);
         const rPeri = semiMajorAxis * (1 - eccentricity);
         apoapsisAlt = rApo - R_EARTH;
