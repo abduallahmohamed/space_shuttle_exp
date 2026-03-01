@@ -180,8 +180,27 @@ body {
 }
 
 #notification-area .toast.info,
-#notification-area .toast[data-type="info"] {
+#notification-area .toast[data-type="info"],
+#notification-area .notification-info {
   border-left-color: var(--primary);
+}
+
+#notification-area .notification-success {
+  border-left-color: var(--success);
+}
+
+#notification-area .notification-warning {
+  border-left-color: var(--warning);
+}
+
+#notification-area .notification-error {
+  border-left-color: var(--danger);
+}
+
+.notification-toast.fade-out {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 @keyframes toast-slide-in {
