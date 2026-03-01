@@ -17,6 +17,8 @@
       this.timeWarp = 1;
       this.timeWarpLevels = [0.1, 1, 10, 100, 1000, 10000];
       this.timeWarpIndex = 1;
+      this.cameraModes = ['chase', 'close', 'cockpit', 'flyby', 'orbit'];
+      this.cameraModeIndex = 0;
 
       this.setupKeyboard();
       this.setupUI();
@@ -79,6 +81,11 @@
         // . (period): increase time warp
         if (key === '.') {
           this.increaseTimeWarp();
+          e.preventDefault();
+        }
+        // V: cycle camera mode
+        if (key === 'v' || key === 'V') {
+          this.cycleCameraMode();
           e.preventDefault();
         }
         // P: pause/unpause
@@ -215,15 +222,13 @@
         btnReset.addEventListener('click', () => this.onReset());
       }
 
-      const btnOrbitView = document.getElementById('btn-orbit-view');
-      if (btnOrbitView) {
-        btnOrbitView.addEventListener('click', () => this.onViewChange('orbit'));
-      }
-
-      const btnChaseView = document.getElementById('btn-chase-view');
-      if (btnChaseView) {
-        btnChaseView.addEventListener('click', () => this.onViewChange('chase'));
-      }
+      // Camera mode buttons
+      document.querySelectorAll('.cam-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-cam');
+          this.setCameraMode(mode);
+        });
+      });
 
       // Time warp select
       const timeWarpSelect = document.getElementById('param-timewarp');
@@ -361,6 +366,22 @@
         toast.classList.add('fade-out');
         setTimeout(() => toast.remove(), 300);
       }, 3000);
+    }
+
+    cycleCameraMode() {
+      this.cameraModeIndex = (this.cameraModeIndex + 1) % this.cameraModes.length;
+      const mode = this.cameraModes[this.cameraModeIndex];
+      this.setCameraMode(mode);
+    }
+
+    setCameraMode(mode) {
+      this.cameraModeIndex = this.cameraModes.indexOf(mode);
+      if (this.cameraModeIndex < 0) this.cameraModeIndex = 0;
+      document.querySelectorAll('.cam-btn').forEach((b) => b.classList.remove('active'));
+      const activeBtn = document.querySelector('.cam-btn[data-cam="' + mode + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+      this.onViewChange(mode);
+      this.showNotification('Camera: ' + mode.charAt(0).toUpperCase() + mode.slice(1), 'info');
     }
 
     togglePause() {

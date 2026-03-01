@@ -334,6 +334,41 @@
   background: rgba(0, 212, 255, 0.1);
 }
 
+/* --- Camera Mode Grid --- */
+.cam-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.cam-btn {
+  padding: 0.45rem 0.3rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.cam-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.25);
+}
+
+.cam-btn.active {
+  color: var(--bg-dark);
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+  font-weight: 700;
+}
+
 /* --- Keyboard Shortcuts --- */
 .keybinds {
   display: flex;
